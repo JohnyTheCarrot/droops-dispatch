@@ -19,12 +19,14 @@ would do
 
 ## Commands
 ### login
+Opens Discord's oauth2 window to authorize Dispatch with your account.
 ###### Example
 `DISPATCH >: login`
 ##### Parameters
 None
 
 ### update
+Uploads the game files to the specified branch.
 ###### Example
 `DISPATCH >: update 532009786162806794`
 ##### Parameters
@@ -34,6 +36,9 @@ None
 | branch_id        | ID of the branch you'd like to upload the update to        |
 
 ### build publish
+Publishes a build for it's branch.
+Note that, to publish a build, it had to be uploaded with the update command to said branch first.
+You **cannot** publish a build for branch 2 when it was uploaded to branch 1.
 ###### Example
 `DISPATCH >: build publish 532009786162806794 539036401950261275`
 ##### Parameters
@@ -44,6 +49,7 @@ None
 | build_id         | ID of the build       |
 
 ### build list
+Lists all builds for the specified branch.
 ###### Example
 `DISPATCH >: build list 532009786162806794`
 ##### Parameters
@@ -53,12 +59,14 @@ None
 | branch_id        | ID of the branch you'd like to list the builds of       |
 
 ### branch list
+Lists all branches.
 ###### Example
 `DISPATCH >: branch list`
 ##### Parameters
 None
 
 ### branch delete
+Deletes the specified branch.
 ###### Example
 `DISPATCH >: branch delete 532009786162806794`
 ##### Parameters
@@ -68,25 +76,32 @@ None
 | branch_id        | ID of the branch you'd to delete       |
 
 ### restart
+Restarts the CLI, **required** for when you have changed the config.
 ###### Example
 `DISPATCH >: restart`
 ##### Parameters
 None
 
 ### clear/cls
+Clears the console.
 ###### Example
 `DISPATCH >: clear`
+
 `DISPATCH >: cls`
 ##### Parameters
 None
 
 ### exit
+Exits the CLI.
 ###### Example
 `DISPATCH >: exit`
 ##### Parameters
 None
 
 ## Configuration
+### NOTE:
+> A restart of the CLI is **required** after every config change.
+> You can restart the CLI with the `restart` command.
 
 | variable         | type        | description                            |
 | ---------------- | ----------- | -------------------------------------- |
