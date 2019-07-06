@@ -3,6 +3,9 @@
 > You need to have a gamedev license from Discord.
 > You can buy a license by selecting/creating an application on [Discord's Developer Portal](https://discordapp.com/developers/applications).
 
+#### IMPORTANT
+Don't forget to set Discord's first party Dispatch as 'dispatch' in your environment variables!
+
 ### How it works:
 It listens for your shorter command, and executes the longer, normal command for you.
 
