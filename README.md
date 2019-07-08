@@ -3,6 +3,11 @@
 > You need to have a gamedev license from Discord.
 > You can buy a license by selecting/creating an application on [Discord's Developer Portal](https://discordapp.com/developers/applications).
 
+> **Important**
+> This tool is NOT made by Discord, and they will also not provide support for the tool itself. So please don't contact them for issues you may encounter with this tool.
+> If you need support for this tool, please open an issue on this github repo.
+> Thank you.
+
 #### IMPORTANT
 Don't forget to set Discord's first party Dispatch as 'dispatch' in your environment variables!
 
