@@ -75,6 +75,23 @@ Deletes the specified branch.
 | ---------------- | ----------- |
 | branch_id        | ID of the branch you'd to delete       |
 
+
+## CLI Commands
+
+### checkupdate
+Checks for updates.
+###### Example
+`DISPATCH >: checkupdate`
+##### Parameters
+None
+
+### runupdate
+Downloads & installs update.
+###### Example
+`DISPATCH >: runupdate`
+##### Parameters
+None
+
 ### restart
 Restarts the CLI, **required** for when you have changed the config.
 ###### Example
