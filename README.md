@@ -1,4 +1,7 @@
 # droops-dispatch
+
+**WIP:** More features will be added and bugs will be fixed as I'm made aware of them.
+
 > **Note:**
 >
 > You need to have a gamedev license from Discord.
