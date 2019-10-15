@@ -1,9 +1,9 @@
 import re, os, sys, subprocess, requests, dispatch_config, json, copy, platform
 
-version = 107
+version = 108
 
-def AskConsent():
-    confirmation = input("Confirm (Y/N): ")
+def AskConsent(text="Confirm"):
+    confirmation = input(f"{text} (Y/N): ")
     validated = re.match(r'([yYnN])', confirmation)
     if validated:
         return re.match(r'[yY]', confirmation)
@@ -11,7 +11,7 @@ def AskConsent():
         return False
 
 def CheckUpdate():
-    url = "https://api.monochromium.games/dispatch-version"
+    url = "https://raw.githubusercontent.com/JohnyTheCarrot/droops-dispatch/canary/version.txt"
     headers = {
         'User-Agent': f"Droop's Dispatch Updater ({dispatch_config.user_agent}, v1.0.0)",
         'Accept': "*/*",
@@ -35,7 +35,7 @@ def RunUpdate():
     print(f"If you have not made any changes to the {os.path.basename(__file__)} script you can ignore this warning.")
     print("Are you sure you want to continue?\n")
     if AskConsent():
-        url = "https://api.monochromium.games/dispatch"
+        url = "https://raw.githubusercontent.com/JohnyTheCarrot/droops-dispatch/canary/dispatch.py"
         headers = {
             'User-Agent': f"Droop's Dispatch Updater ({dispatch_config.user_agent}, v1.0.0)",
             'Accept': "*/*",
@@ -134,6 +134,12 @@ def PushUpdate(branch_id = dispatch_config.default_branch):
     else:
         print("Update canceled.")
 
+def DRMWrap():
+    print("This action is destructive and overwrites the executable. Make sure you've got a backup handy if needed!")
+    if AskConsent(text="Continue?"):
+        subprocess.call(["dispatch", "build", "drm-wrap", dispatch_config.app_id, dispatch_config.game_path])
+    else: print("Cancelled DRM-wrap.")
+
 def ListBranches():
     subprocess.call(["dispatch", "branch", "list", dispatch_config.app_id])
 
@@ -209,6 +215,8 @@ def Command():
             PushUpdate(args[0])
         else:
             print("Please specify a branch ID.")
+    elif command == "drm-wrap":
+        DRMWrap()
     elif command == "branch delete":
         if AskConsent():
             DeleteBranch(args[0])
@@ -248,10 +256,11 @@ def Command():
         print("build list < branch_id >                 - Lists builds for the specified branch.")
         print("branch delete < branch_id >              - Deletes a branch")
         print("branch list                              - Lists branches for SKU.")
+        print("checkupdate                              - Checks for a new update.")
+        print("drm-wrap                                 - DRM wraps executable specified in the config.")
         print("restart                                  - Restarts the client. Required after updating config or source code.")
         print("clear/cls                                - Clears the console.")
         print("exit                                     - Exits the client.")
-        print("checkupdate                              - Checks for a new update.")
         print("runupdate                                - Will start the update process.")
         print("===================================================================================================================================================")
         print("If you found a bug you need fixed, feel free to open up an issue on my GitHub, or to push out a fix yourself.")
