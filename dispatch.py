@@ -294,9 +294,9 @@ def Command():
     if command != "exit":
         Command()
 
+print('Use command "exit" to exit and "help" for help.')
 # Check if additional arugments have been passed
 if len(sys.argv) != 1:
     firstcommand = " ".join(sys.argv[1:])
-    print(firstcommand)
-print('Use command "exit" to exit and "help" for help.')
+    print("DISPATCH >: " + firstcommand)
 Command()
