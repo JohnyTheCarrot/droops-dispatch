@@ -1,6 +1,11 @@
-import re, os, sys, subprocess, requests, dispatch_config, json, copy, platform
+import re, os, sys, subprocess
+import requests, json, copy, platform
+
+import dispatch_config
+# Having long single-line imports freaks some version of Python out
 
 version = 108
+firstcommand = ""
 
 def AskConsent(text="Confirm"):
     confirmation = input(f"{text} (Y/N): ")
@@ -73,7 +78,7 @@ if dispatch_config.enable_splash:
 
 CheckUpdate()
 
-def has_field(variable: str):
+def HasField(variable: str):
     obj = dispatch_config.webhook_payload
     try:
         for embed in obj["embeds"]:
@@ -84,7 +89,7 @@ def has_field(variable: str):
     except KeyError:
         return False
 
-def has_image_variable():
+def HasImageVariable():
     obj = dispatch_config.webhook_payload
     try:
         for embed in obj["embeds"]:
@@ -98,22 +103,22 @@ def has_image_variable():
 
 def PushUpdate(branch_id = dispatch_config.default_branch):
     if AskConsent():
-        confirmation = input("Fire webhook? (Y/N): ") if dispatch_config.webhook_url is not None and (has_field("[DEVELOPER]") or has_field("[NOTES]"))  else 'n'
+        confirmation = input("Fire webhook? (Y/N): ") if dispatch_config.webhook_url is not None and (HasField("[DEVELOPER]") or HasField("[NOTES]"))  else 'n'
         validated = re.match(r'([yYnN])', confirmation)
         if validated and re.match(r'[yY]', confirmation):
-            note = input("Note: ") if has_field("[NOTES]") else 'None'
+            note = input("Note: ") if HasField("[NOTES]") else 'None'
             if note == 'None':
                 pass
             elif not note:
                 print("Please add a note")
                 return
-            developer = input("Developer Tag (username#discrim): ") if has_field("[DEVELOPER]") else 'None'
+            developer = input("Developer Tag (username#discrim): ") if HasField("[DEVELOPER]") else 'None'
             if developer == 'None':
                 pass
             elif not developer:
                 print("Please identify yourself")
                 return
-            image = input("Image URL: ") if has_image_variable() else 'None'
+            image = input("Image URL: ") if HasImageVariable() else 'None'
             if image == 'None':
                 pass
             elif not image:
@@ -150,7 +155,9 @@ def PublishBuild(branch_id: int, build_id: int):
     subprocess.call(["dispatch", "build", "publish", dispatch_config.app_id, branch_id, build_id])
 
 def DeleteBranch(branch_id: int):
-    subprocess.call(["dispatch", "branch", "delete", dispatch_config.app_id, branch_id])
+    if AskConsent():
+        subprocess.call(["dispatch", "branch", "delete", dispatch_config.app_id, branch_id])
+    else: print("Cancelled branch delete.")
 
 def Login():
     subprocess.call(["dispatch", "login"])
@@ -167,6 +174,13 @@ def Restart():
         os.execv(sys.executable, [sys.executable, os.path.join(sys.path[0], __file__)] + sys.argv[1:])
     elif platform.system() == "Windows":
         os.execv(sys.executable, [sys.executable, "\"" + os.path.join(sys.path[0], __file__) + "\""] + sys.argv[1:])
+
+def UpdateDispatch():
+    subprocess.call(["dispatch", "update"])
+
+def DispatchVersion():
+    subprocess.call(["dispatch", "-V"])
+    print("Use 'update-d' to update Dispatch.")
 
 def FireWebhook(developer: str, notes: str, image: str):
 
@@ -198,8 +212,14 @@ def FireWebhook(developer: str, notes: str, image: str):
         print(f"Server response: {response.text}")
 
 def Command():
+    global firstcommand
     try:
-        command = input("DISPATCH >: ")
+        # Check if argument has been passed from initial run
+        if not firstcommand:
+            command = input("DISPATCH >: ")
+        else:
+            command = firstcommand
+            firstcommand = ""
     except KeyboardInterrupt:
         print("Bye.")
         return
@@ -208,8 +228,11 @@ def Command():
         return
     args = command.split(' ')
     args.remove(args[0])
-    if command.startswith("login", 0):
+    if command == "login":
         Login()
+    elif command == "exit":
+        print("Bye.")
+        exit(0)
     elif command.startswith("update", 0):
         if len(args) == 1:
             PushUpdate(args[0])
@@ -218,10 +241,7 @@ def Command():
     elif command == "drm-wrap":
         DRMWrap()
     elif command == "branch delete":
-        if AskConsent():
-            DeleteBranch(args[0])
-        else:
-            print("Canceled.")
+        DeleteBranch(args[0])
     elif command == "clear" or command == "cls":
         Clear()
     elif command == "branch list":
@@ -246,29 +266,37 @@ def Command():
                 PublishBuild(args[1], args[2])
         else:
             print("Unknown subcommand.")
+    elif command == "version-d":
+        DispatchVersion()
+    elif command == "update-d":
+        UpdateDispatch()
     elif command == "help":
-        print("")
-        print("===================================================================================================================================================")
-        print("Help: (enter arguments without < & >)")
+        print("\n"+("="*120))
+        print("Help:")
         print("login                                    - Opens browser to authenticate Discord Dispatch.")
-        print("update < branch_id >                     - Starts updating process.")
-        print("build publish < branch_id > < build_id > - Publishes uploaded update. Note that you can only publish updates that were updated for that branch ID.")
-        print("build list < branch_id >                 - Lists builds for the specified branch.")
-        print("branch delete < branch_id >              - Deletes a branch")
+        print("update <branch_id>                       - Starts updating process.")
+        print("build publish <branch_id> <build_id>     - Publishes uploaded update. Note that you can only publish updates that were updated for that branch ID.")
+        print("build list <branch_id>                   - Lists builds for the specified branch.")
+        print("branch delete <branch_id>                - Deletes a branch")
         print("branch list                              - Lists branches for SKU.")
         print("checkupdate                              - Checks for a new update.")
         print("drm-wrap                                 - DRM wraps executable specified in the config.")
         print("restart                                  - Restarts the client. Required after updating config or source code.")
         print("clear/cls                                - Clears the console.")
-        print("exit                                     - Exits the client.")
         print("runupdate                                - Will start the update process.")
-        print("===================================================================================================================================================")
-        print("If you found a bug you need fixed, feel free to open up an issue on my GitHub, or to push out a fix yourself.")
-        print("")
-    elif command != "exit":
+        print("update-d                                 - Updates Discord Dispatch.")
+        print("version-d                                - Prints Discord Dispatch version.")
+        print("exit                                     - Exits the client.")
+        print("="*120)
+        print("If you found a bug you need fixed, feel free to open up an issue on my GitHub, or to push out a fix yourself.\n")
+    else:
         print("Unknown command.")
     if command != "exit":
         Command()
 
-print("Use command \"exit\" to exit and \"help\" for help.")
+# Check if additional arugments have been passed
+if len(sys.argv) != 1:
+    firstcommand = " ".join(sys.argv[1:])
+    print(firstcommand)
+print('Use command "exit" to exit and "help" for help.')
 Command()
