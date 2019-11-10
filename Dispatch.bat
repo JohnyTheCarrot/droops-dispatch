@@ -1,2 +1,3 @@
-py dispatch.py
-Pause
+@echo OFF
+py dispatch.py %*
+pause
